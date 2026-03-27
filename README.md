@@ -1,59 +1,235 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎭 Sistema de Reservas de Auditorio
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema web para la gestión y reserva de asientos en auditorios. Permite a los usuarios autenticados seleccionar y reservar asientos de forma visual, mientras que los administradores gestionan usuarios, auditorios y todas las reservas del sistema.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📋 Características
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Módulos principales
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Dashboard** — Panel con estadísticas en tiempo real (usuarios, auditorios, reservas activas, reservas del día) y accesos rápidos.
+- **Gestión de Usuarios (CRUD)** — Crear, editar, eliminar usuarios y asignar roles (admin/usuario). Solo accesible para administradores.
+- **Gestión de Auditorios (CRUD)** — Crear, editar, eliminar auditorios con generación automática de asientos según filas y columnas configuradas.
+- **Mapa Visual de Asientos** — Vista interactiva tipo cine que muestra asientos disponibles (verde), ocupados (rojo) y seleccionados (azul).
+- **Reserva de Asientos** — Flujo de reserva intuitivo: seleccionar auditorio → elegir fecha → clic en asiento → confirmar.
+- **Mis Reservas** — Cada usuario ve sus propias reservas; los administradores ven todas.
 
-## Learning Laravel
+### Validaciones y permisos
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- Un usuario **no puede reservar** un asiento que ya está ocupado para la misma fecha.
+- Un usuario **no puede tener más de una reserva activa** por auditorio en la misma fecha.
+- Solo los **administradores** pueden gestionar usuarios y auditorios.
+- Los usuarios solo pueden **ver y cancelar** sus propias reservas.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 🛠️ Tecnologías
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Tecnología | Versión |
+|---|---|
+| **PHP** | 8.2+ |
+| **Laravel** | 12.x |
+| **Laravel Breeze** | 2.x (Autenticación) |
+| **Bootstrap** | 5.3.3 (CDN) |
+| **Bootstrap Icons** | 1.11.3 (CDN) |
+| **MySQL** | 5.7+ / 8.x |
+| **Composer** | 2.x |
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 📁 Estructura del Proyecto
 
-## Contributing
+```
+sistema_reserva/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AuditorioController.php    # CRUD de auditorios
+│   │   │   ├── ReservaController.php      # Gestión de reservas
+│   │   │   ├── UserController.php         # CRUD de usuarios
+│   │   │   └── ProfileController.php      # Perfil de usuario (Breeze)
+│   │   └── Middleware/
+│   │       └── AdminMiddleware.php        # Middleware de permisos admin
+│   ├── Models/
+│   │   ├── Asiento.php                    # Modelo de asiento
+│   │   ├── Auditorio.php                  # Modelo de auditorio
+│   │   ├── Reserva.php                    # Modelo de reserva
+│   │   └── User.php                       # Modelo de usuario (con roles)
+│   └── Providers/
+│       └── AppServiceProvider.php         # Configuración de paginación Bootstrap
+├── database/
+│   ├── migrations/
+│   │   ├── create_users_table             # Tabla de usuarios
+│   │   ├── add_role_to_users_table        # Campo role (admin/usuario)
+│   │   ├── create_auditorios_table        # Tabla de auditorios
+│   │   ├── create_asientos_table          # Tabla de asientos
+│   │   └── create_reservas_table          # Tabla de reservas
+│   └── seeders/
+│       └── DatabaseSeeder.php             # Datos de prueba
+├── resources/views/
+│   ├── layouts/
+│   │   └── bootstrap.blade.php            # Layout principal con Bootstrap 5
+│   ├── auditorios/                        # Vistas de auditorios (index, create, edit, show)
+│   ├── usuarios/                          # Vistas de usuarios (index, create, edit)
+│   ├── reservas/                          # Vistas de reservas (index, create, show)
+│   ├── dashboard.blade.php                # Dashboard principal
+│   └── auth/                              # Vistas de autenticación (Breeze)
+└── routes/
+    └── web.php                            # Definición de rutas
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## ⚙️ Instalación
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Requisitos previos
 
-## Security Vulnerabilities
+- PHP 8.2 o superior
+- Composer 2.x
+- MySQL 5.7+ o 8.x
+- Node.js y npm (para assets de Breeze)
+- XAMPP, Laragon o servidor web compatible
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Pasos
 
-## License
+1. **Clonar el repositorio**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+git clone <url-del-repositorio> sistema_reserva
+cd sistema_reserva
+```
+
+2. **Instalar dependencias de PHP**
+
+```bash
+composer install
+```
+
+3. **Configurar el archivo de entorno**
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+4. **Configurar la base de datos** en el archivo `.env`
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=reserva
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+5. **Crear la base de datos**
+
+```sql
+CREATE DATABASE reserva;
+```
+
+6. **Ejecutar migraciones y seeders**
+
+```bash
+php artisan migrate --seed
+```
+
+7. **Instalar dependencias de Node.js** (para assets de autenticación Breeze)
+
+```bash
+npm install
+npm run build
+```
+
+8. **Iniciar el servidor de desarrollo**
+
+```bash
+php artisan serve
+```
+
+La aplicación estará disponible en `http://127.0.0.1:8000`
+
+---
+
+## 🔑 Credenciales de Prueba
+
+| Rol | Email | Contraseña |
+|---|---|---|
+| **Administrador** | `admin@admin.com` | `password` |
+| **Usuario** | `usuario@demo.com` | `password` |
+
+> Los datos de prueba incluyen 3 auditorios con asientos generados automáticamente.
+
+---
+
+## 🗃️ Base de Datos
+
+### Diagrama de relaciones
+
+```
+users (1) ──────── (N) reservas
+                         │
+asientos (1) ───── (N) reservas
+    │
+auditorios (1) ── (N) asientos
+```
+
+### Tablas principales
+
+| Tabla | Descripción |
+|---|---|
+| `users` | Usuarios del sistema con campo `role` (admin/usuario) |
+| `auditorios` | Auditorios con nombre, descripción, filas y columnas |
+| `asientos` | Asientos individuales (fila A-Z, número 1-N) vinculados a un auditorio |
+| `reservas` | Reservas con usuario, asiento, fecha del evento y estado (reservado/cancelado) |
+
+---
+
+## 🔗 Rutas Principales
+
+### Rutas públicas (autenticadas)
+
+| Método | URI | Descripción |
+|---|---|---|
+| `GET` | `/dashboard` | Dashboard principal |
+| `GET` | `/auditorios` | Lista de auditorios |
+| `GET` | `/auditorios/{id}` | Mapa de asientos del auditorio |
+| `GET` | `/reservas` | Mis reservas |
+| `GET` | `/reservas/crear/{auditorio}` | Seleccionar asiento para reservar |
+| `POST` | `/reservas` | Confirmar reserva |
+| `GET` | `/reservas/{id}` | Detalle de una reserva |
+| `PATCH` | `/reservas/{id}/cancelar` | Cancelar una reserva |
+
+### Rutas de administración (solo admin)
+
+| Método | URI | Descripción |
+|---|---|---|
+| `GET` | `/admin/usuarios` | Lista de usuarios |
+| `GET` | `/admin/usuarios/create` | Crear usuario |
+| `PUT` | `/admin/usuarios/{id}` | Actualizar usuario |
+| `DELETE` | `/admin/usuarios/{id}` | Eliminar usuario |
+| `GET` | `/admin/auditorios` | Gestión de auditorios |
+| `POST` | `/admin/auditorios` | Crear auditorio |
+| `PUT` | `/admin/auditorios/{id}` | Actualizar auditorio |
+| `DELETE` | `/admin/auditorios/{id}` | Eliminar auditorio |
+
+---
+
+## 🎨 Interfaz de Usuario
+
+La interfaz está construida con **Bootstrap 5** vía CDN, sin dependencias locales de CSS framework.
+
+- **Navbar** adaptativa: muestra menú de administración solo para admins.
+- **Mapa de asientos** visual e interactivo con selección por clic.
+- **Alertas flash** para mensajes de éxito, error y validación.
+- **Tablas responsivas** con paginación estilizada con Bootstrap 5.
+- **Cards** para listar auditorios con información resumida.
+- **Badges** de colores para estados de reserva y roles de usuario.
+
+---
+
+## 📝 Licencia
+
+Este proyecto está bajo la licencia [MIT](https://opensource.org/licenses/MIT).
